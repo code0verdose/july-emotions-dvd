@@ -1,3 +1,8 @@
+// Функция для определения размера объектов в зависимости от устройства
+function getLogoSize() {
+  return window.innerWidth <= 768 ? 110 : 220; // 110px на мобильных, 220px на десктопах
+}
+
 // Создание звезд на фоне
 function createStars() {
   const starsContainer = document.getElementById('stars');
@@ -31,7 +36,7 @@ function createStars() {
 createStars();
 
 // Размер объектов (с учётом контейнера)
-const logoSize = 220;
+const logoSize = getLogoSize();
 
 // Код для первого объекта (лицо)
 const logo = document.getElementById('dvd-logo');
@@ -199,13 +204,16 @@ function animate() {
 
 // Перезапуск анимации при изменении размера окна
 window.addEventListener('resize', () => {
+  // Обновление размера объектов
+  const newLogoSize = getLogoSize();
+  
   // Проверка для первого объекта
-  if (posX1 > window.innerWidth - logoSize) posX1 = window.innerWidth - logoSize;
-  if (posY1 > window.innerHeight - logoSize) posY1 = window.innerHeight - logoSize;
+  if (posX1 > window.innerWidth - newLogoSize) posX1 = window.innerWidth - newLogoSize;
+  if (posY1 > window.innerHeight - newLogoSize) posY1 = window.innerHeight - newLogoSize;
   
   // Проверка для второго объекта
-  if (posX2 > window.innerWidth - logoSize) posX2 = window.innerWidth - logoSize;
-  if (posY2 > window.innerHeight - logoSize) posY2 = window.innerHeight - logoSize;
+  if (posX2 > window.innerWidth - newLogoSize) posX2 = window.innerWidth - newLogoSize;
+  if (posY2 > window.innerHeight - newLogoSize) posY2 = window.innerHeight - newLogoSize;
 });
 
 // Добавляем обработчики для перетаскивания первого объекта (лицо)

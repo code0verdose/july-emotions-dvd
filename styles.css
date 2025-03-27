@@ -62,4 +62,19 @@ body {
   0% { opacity: 0.1; }
   50% { opacity: 1; }
   100% { opacity: 0.1; }
+}
+
+/* Медиа-запрос для мобильных устройств */
+@media screen and (max-width: 768px) {
+  #dvd-logo, #dog-logo {
+    width: 100px;  /* 1/2 от 200px */
+    height: 100px;
+    padding: 5px;  /* также уменьшаем padding */
+  }
+  
+  .image-container {
+    width: 110px;  /* 1/2 от 220px */
+    height: 110px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);  /* уменьшаем тень */
+  }
 } 
