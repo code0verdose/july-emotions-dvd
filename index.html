@@ -3,7 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>July emotions</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="assets/favicon/site.webmanifest" />
+
+  <title>DVD - Юлия в космосе</title>
   <style>
     body {
       margin: 0;
@@ -11,12 +18,33 @@
       background-color: #000;
       position: relative;
     }
-    #dvd-logo {
+    
+    #dvd-logo, #dog-logo {
       position: absolute;
       width: 200px;
       height: 200px;
       object-fit: contain;
       z-index: 10;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+      padding: 10px;
+      background: radial-gradient(
+        circle,
+        rgba(0, 0, 0, 0) 60%,
+        rgba(0, 0, 0, 0.8) 90%
+      );
+    }
+    
+    .image-container {
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      overflow: hidden;
+      z-index: 10;
+      background-color: rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(5px);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
     }
     
     .star-container {
@@ -44,7 +72,14 @@
 </head>
 <body>
   <div class="star-container" id="stars"></div>
-  <img id="dvd-logo" src="assets/1.png" alt="Летающий логотип">
+  
+  <div class="image-container" id="dvd-container">
+    <img id="dvd-logo" src="assets/face/1.png" alt="Летающий логотип">
+  </div>
+  
+  <div class="image-container" id="dog-container">
+    <img id="dog-logo" src="assets/dog/1.png" alt="Летающая собака">
+  </div>
   
   <script>
     // Создание звезд на фоне
@@ -79,54 +114,156 @@
     // Запускаем создание звезд
     createStars();
     
-    // Код для движущегося логотипа
-    const logo = document.getElementById('dvd-logo');
-    let posX = Math.random() * (window.innerWidth - 200);
-    let posY = Math.random() * (window.innerHeight - 200);
-    let speedX = 2;
-    let speedY = 2;
-    let currentImage = 1;
+    // Размер объектов (с учётом контейнера)
+    const logoSize = 220;
     
-    // Предзагрузка изображений
-    const images = [];
+    // Код для первого объекта (лицо)
+    const logo = document.getElementById('dvd-logo');
+    const logoContainer = document.getElementById('dvd-container');
+    let posX1 = Math.random() * (window.innerWidth - logoSize);
+    let posY1 = Math.random() * (window.innerHeight - logoSize);
+    let speedX1 = 2;
+    let speedY1 = 2;
+    let currentImage1 = 1;
+    
+    // Код для второго объекта (собака)
+    const dogLogo = document.getElementById('dog-logo');
+    const dogContainer = document.getElementById('dog-container');
+    let posX2 = Math.random() * (window.innerWidth - logoSize);
+    let posY2 = Math.random() * (window.innerHeight - logoSize);
+    let speedX2 = -2; // Начальное направление противоположное первому объекту
+    let speedY2 = -2;
+    let currentImage2 = 1;
+    
+    // Предзагрузка изображений лица
+    const faceImages = [];
     for (let i = 1; i <= 6; i++) {
       const img = new Image();
-      img.src = `assets/${i}.png`;
-      images.push(img);
+      img.src = `assets/face/${i}.png`;
+      faceImages.push(img);
     }
     
-    function changeImage() {
-      currentImage = currentImage % 6 + 1;
-      logo.src = `assets/${currentImage}.png`;
+    // Предзагрузка изображений собаки
+    const dogImages = [];
+    for (let i = 1; i <= 7; i++) {
+      const img = new Image();
+      img.src = `assets/dog/${i}.png`;
+      dogImages.push(img);
+    }
+    
+    function changeFaceImage() {
+      currentImage1 = currentImage1 % 6 + 1;
+      logo.src = `assets/face/${currentImage1}.png`;
+    }
+    
+    function changeDogImage() {
+      currentImage2 = currentImage2 % 7 + 1;
+      dogLogo.src = `assets/dog/${currentImage2}.png`;
+    }
+    
+    // Проверка столкновения двух объектов
+    function checkCollision() {
+      // Проверяем перекрытие объектов
+      const face = {
+        left: posX1,
+        right: posX1 + logoSize,
+        top: posY1,
+        bottom: posY1 + logoSize
+      };
+      
+      const dog = {
+        left: posX2,
+        right: posX2 + logoSize,
+        top: posY2,
+        bottom: posY2 + logoSize
+      };
+      
+      // Проверка перекрытия
+      if (face.left < dog.right && 
+          face.right > dog.left && 
+          face.top < dog.bottom && 
+          face.bottom > dog.top) {
+        
+        // Вычисляем центры объектов
+        const centerX1 = posX1 + logoSize / 2;
+        const centerY1 = posY1 + logoSize / 2;
+        const centerX2 = posX2 + logoSize / 2;
+        const centerY2 = posY2 + logoSize / 2;
+        
+        // Вектор от центра первого объекта к центру второго
+        const dx = centerX2 - centerX1;
+        const dy = centerY2 - centerY1;
+        
+        // Меняем направление скоростей
+        speedX1 = -Math.sign(dx) * Math.abs(speedX1);
+        speedY1 = -Math.sign(dy) * Math.abs(speedY1);
+        speedX2 = Math.sign(dx) * Math.abs(speedX2);
+        speedY2 = Math.sign(dy) * Math.abs(speedY2);
+        
+        // Меняем изображения при столкновении
+        changeFaceImage();
+        changeDogImage();
+        
+        // Немного отодвигаем объекты друг от друга, чтобы избежать залипания
+        posX1 += speedX1 * 2;
+        posY1 += speedY1 * 2;
+        posX2 += speedX2 * 2;
+        posY2 += speedY2 * 2;
+      }
     }
     
     function animate() {
-      posX += speedX;
-      posY += speedY;
+      // Перемещение первого объекта
+      posX1 += speedX1;
+      posY1 += speedY1;
       
-      // Проверка столкновений с краями экрана
-      if (posX <= 0 || posX >= window.innerWidth - 200) {
-        speedX = -speedX;
-        changeImage();
+      // Проверка столкновений с краями экрана для первого объекта
+      if (posX1 <= 0 || posX1 >= window.innerWidth - logoSize) {
+        speedX1 = -speedX1;
+        changeFaceImage();
       }
       
-      if (posY <= 0 || posY >= window.innerHeight - 200) {
-        speedY = -speedY;
-        changeImage();
+      if (posY1 <= 0 || posY1 >= window.innerHeight - logoSize) {
+        speedY1 = -speedY1;
+        changeFaceImage();
       }
       
-      // Обновление позиции
-      logo.style.left = posX + 'px';
-      logo.style.top = posY + 'px';
+      // Перемещение второго объекта
+      posX2 += speedX2;
+      posY2 += speedY2;
+      
+      // Проверка столкновений с краями экрана для второго объекта
+      if (posX2 <= 0 || posX2 >= window.innerWidth - logoSize) {
+        speedX2 = -speedX2;
+        changeDogImage();
+      }
+      
+      if (posY2 <= 0 || posY2 >= window.innerHeight - logoSize) {
+        speedY2 = -speedY2;
+        changeDogImage();
+      }
+      
+      // Проверка столкновения объектов между собой
+      checkCollision();
+      
+      // Обновление позиций
+      logoContainer.style.left = posX1 + 'px';
+      logoContainer.style.top = posY1 + 'px';
+      dogContainer.style.left = posX2 + 'px';
+      dogContainer.style.top = posY2 + 'px';
       
       requestAnimationFrame(animate);
     }
     
     // Перезапуск анимации при изменении размера окна
     window.addEventListener('resize', () => {
-      // Проверка, чтобы логотип не оказался за пределами экрана
-      if (posX > window.innerWidth - 200) posX = window.innerWidth - 200;
-      if (posY > window.innerHeight - 200) posY = window.innerHeight - 200;
+      // Проверка для первого объекта
+      if (posX1 > window.innerWidth - logoSize) posX1 = window.innerWidth - logoSize;
+      if (posY1 > window.innerHeight - logoSize) posY1 = window.innerHeight - logoSize;
+      
+      // Проверка для второго объекта
+      if (posX2 > window.innerWidth - logoSize) posX2 = window.innerWidth - logoSize;
+      if (posY2 > window.innerHeight - logoSize) posY2 = window.innerHeight - logoSize;
     });
     
     // Запуск анимации
